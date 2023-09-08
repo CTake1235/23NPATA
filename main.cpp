@@ -1,8 +1,6 @@
 #include    "mbed.h"
 #include    <ctime>
 
-#define     CLOSE   1167
-#define     OPEN    1833
 
 // インタラプタいろいろ
 DigitalIn   PhIn_FR (A0);
@@ -27,6 +25,9 @@ bool InterrupterData[6] = {};
 // 0:前 1:中 2:後
 bool  passcount[6] = {};   
 
+// サーボモーターええ感じの角度
+const int   CLOSE   = 1167;
+const int   OPEN    = 1833;
 
 int main(){
     while (true) {
