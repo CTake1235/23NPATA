@@ -30,11 +30,21 @@ bool InterrupterData[6] = {};
 bool  passcount[6] = {};   
 
 // サーボモーターええ感じの角度
-const int   CLOSE   = 1167;
-const int   OPEN    = 1833;
+const int   TOUCH   = 850;
+const int   LOSS    = 1700;
+const int   LOCK    = 850;
+const int   FREE    = 1700;
 
 int main(){
+
+    // 全閉じ&通電
     sig.write(1);
+    fr_lock     .pulsewidth_us(LOCK);
+    front       .pulsewidth_us(TOUCH);
+    center      .pulsewidth_us(TOUCH);
+    back        .pulsewidth_us(TOUCH);
+    bc_lock     .pulsewidth_us(LOCK);
+
     while (true) {
         reader();
 
@@ -44,23 +54,23 @@ int main(){
         }
         if(passcount[0] || passcount[1]){   // 前のセンサどっちかで読んだとき
             sig     .write(0); // 送電停止
-            fr_lock .pulsewidth_us(OPEN);
-            front   .pulsewidth_us(OPEN);
+            fr_lock .pulsewidth_us(FREE);
+            front   .pulsewidth_us(LOSS);
         }
         if(passcount[2] || passcount[3]){   // 中のセンサどっちかで読んだとき
             if(passcount[0] && passcount[1]){
-                fr_lock .pulsewidth_us(CLOSE);
-                front   .pulsewidth_us(CLOSE);
+                fr_lock .pulsewidth_us(LOCK);
+                front   .pulsewidth_us(TOUCH);
                 ThisThread::sleep_for(500ms);    // fr_lockが閉じ切らないうちにfrontが開くのを防ぐ
-                center  .pulsewidth_us(OPEN);
+                center  .pulsewidth_us(LOSS);
             }
         }
         if(passcount[4] || passcount[5]){   // 後ろのセンサどっちかで読んだとき
             if(passcount[2] && passcount[3]){
-                center  .pulsewidth_us(CLOSE);
+                center  .pulsewidth_us(TOUCH);
                 ThisThread::sleep_for(500ms);   // frontが閉じ切らないうちにcenterが開くのを防ぐ
-                back    .pulsewidth_us(OPEN);
-                bc_lock .pulsewidth_us(OPEN);
+                back    .pulsewidth_us(LOSS);
+                bc_lock .pulsewidth_us(FREE);
             }
         }
 
@@ -68,8 +78,8 @@ int main(){
 
         while(passcount[4] && passcount[5]){
             if(tm.elapsed_time() >= 5s){
-                back    .pulsewidth_us(CLOSE);
-                bc_lock .pulsewidth_us(CLOSE);
+                back    .pulsewidth_us(TOUCH);
+                bc_lock .pulsewidth_us(LOCK);
                 sig.write(1);
                 for(int i = 0; i < 6; i++)  passcount[i] = false;
             }
