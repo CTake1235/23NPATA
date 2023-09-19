@@ -66,7 +66,7 @@ int main(){
 
         Timer tm;   // 後ろが開いてから閉じるまでの時間を測る
 
-        if(passcount[4] && passcount[5]){
+        while(passcount[4] && passcount[5]){
             if(tm.elapsed_time() >= 5s){
                 back    .pulsewidth_us(CLOSE);
                 bc_lock .pulsewidth_us(CLOSE);
