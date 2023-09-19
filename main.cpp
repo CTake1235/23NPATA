@@ -43,7 +43,7 @@ int main(){
             if(InterrupterData[i] && (passcount[i] == false)) passcount[i] = true;
         }
         if(passcount[0] || passcount[1]){   // 前のセンサどっちかで読んだとき
-            sig.write(0); // 送電停止
+            sig     .write(0); // 送電停止
             fr_lock .pulsewidth_us(OPEN);
             front   .pulsewidth_us(OPEN);
         }
