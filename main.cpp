@@ -10,11 +10,15 @@ DigitalIn   PhIn_CL (A3);
 DigitalIn   PhIn_BR (A4);
 DigitalIn   PhIn_BL (A5);
 
+// 各サーボ
 PwmOut      fr_lock (D1);
 PwmOut      front   (D2);
 PwmOut      center  (D3);
 PwmOut      back    (D4);
 PwmOut      bc_lock (D5);
+
+// 送電停止
+DigitalOut sig(D2);
 
 
 void reader(void);
@@ -30,14 +34,16 @@ const int   CLOSE   = 1167;
 const int   OPEN    = 1833;
 
 int main(){
+    sig.write(1);
     while (true) {
         reader();
 
         // 通過チェック
         for(int i = 0; i < 6; i++){
-            if(InterrupterData[i] && passcount[i] != 1) passcount[i] = true;
+            if(InterrupterData[i] && (passcount[i] == false)) passcount[i] = true;
         }
         if(passcount[0] || passcount[1]){   // 前のセンサどっちかで読んだとき
+            sig.write(0); // 送電停止
             fr_lock .pulsewidth_us(OPEN);
             front   .pulsewidth_us(OPEN);
         }
@@ -64,6 +70,7 @@ int main(){
             if(tm.elapsed_time() >= 5s){
                 back    .pulsewidth_us(CLOSE);
                 bc_lock .pulsewidth_us(CLOSE);
+                sig.write(1);
                 for(int i = 0; i < 6; i++)  passcount[i] = false;
             }
         }
