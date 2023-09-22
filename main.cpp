@@ -38,12 +38,16 @@ const int   FREE    = 1000;
 int main(){
 
     // 全閉じ&通電
-    sig.write(1);
+    sig.write(0);
     fr_lock     .pulsewidth_us(LOCK);
     front       .pulsewidth_us(TOUCH);
     center      .pulsewidth_us(TOUCH);
     back        .pulsewidth_us(TOUCH);
     bc_lock     .pulsewidth_us(LOCK);
+
+    // 起動後少ししたら通電開始
+    ThisThread::sleep_for(3s);
+    sig.write(1);
 
     while (true) {
         reader();
